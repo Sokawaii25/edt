@@ -7,4 +7,4 @@ docker compose up -d
 symfony serve
 
 diag_classes :
-Avis(note, commentaire, emailEtuduiant) 0..* <-> 1 Prof(nom, prenom, ) 0..* <-> 1..* Matiere(nom, )
+Avis(note, commentaire, emailEtuduiant) 0..* <-> 1 Prof(nom, prenom, email) 1..* <-> 0..* Matiere(titre, reference)
