@@ -6,8 +6,11 @@ use App\Repository\ProfesseurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ProfesseurRepository::class)]
+#[UniqueEntity('email')]
 class Professeur
 {
     //ATTRIBUTS
@@ -23,6 +26,7 @@ class Professeur
     private $prenom;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[Assert\Email]
     private $email;
 
     #[ORM\OneToMany(mappedBy: 'professeur', targetEntity: Avis::class, orphanRemoval: true)]
@@ -36,6 +40,11 @@ class Professeur
     {
         $this->avis = new ArrayCollection();
         $this->matieres = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return sprintf('%s %s (%s)', $this->prenom, $this->nom, $this->email);
     }
 
     //GETTERS

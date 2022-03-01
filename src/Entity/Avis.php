@@ -4,8 +4,11 @@ namespace App\Entity;
 
 use App\Repository\AvisRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: AvisRepository::class)]
+#[UniqueEntity(fields: ['emailEtudiant', 'professeur'])]
 class Avis
 {
     #[ORM\Id]
@@ -20,6 +23,7 @@ class Avis
     private $commentaire;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\Email]
     private $emailEtudiant;
 
     #[ORM\ManyToOne(targetEntity: Professeur::class, inversedBy: 'avis')]
