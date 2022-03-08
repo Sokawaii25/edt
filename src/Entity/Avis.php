@@ -8,15 +8,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: AvisRepository::class)]
-#[UniqueEntity(fields: ['emailEtudiant', 'professeur'])]
-class Avis
+#[UniqueEntity(fields: ['emailEtudiant', 'professeur'], message: "Cet étudiant a déjà donné un avis à ce professeur", errorPath: 'emailEtudiant')]
+class Avis implements \JsonSerializable
 {
+    use Updateable;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private $id;
 
     #[ORM\Column(type: 'smallint')]
+    #[Assert\Range(min: 0, max: 5)]
     private $note;
 
     #[ORM\Column(type: 'text')]
@@ -79,6 +82,25 @@ class Avis
     public function setProfesseur(?Professeur $professeur): self
     {
         $this->professeur = $professeur;
+
+        return $this;
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'id' => $this->id,
+            'note' => $this->note,
+            'commentaire' => $this->commentaire,
+            'emailEtudiant' => $this->emailEtudiant
+        ];
+    }
+
+    public function fromArray(array $data): self
+    {
+        $this->note = $data['note'] ?? $this->note;
+        $this->commentaire = $data['commentaire'] ?? $this->commentaire;
+        $this->emailEtudiant = $data['emailEtudiant'] ?? $this->emailEtudiant;
 
         return $this;
     }

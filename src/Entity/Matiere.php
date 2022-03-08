@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MatiereRepository::class)]
-class Matiere
+class Matiere implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,9 +24,13 @@ class Matiere
     #[ORM\ManyToMany(targetEntity: Professeur::class, mappedBy: 'matieres')]
     private $professeurs;
 
+    #[ORM\OneToMany(mappedBy: 'matiere', targetEntity: Cours::class, orphanRemoval: true)]
+    private $cours;
+
     public function __construct()
     {
         $this->professeurs = new ArrayCollection();
+        $this->cours = new ArrayCollection();
     }
 
     public function __toString()
@@ -85,6 +89,45 @@ class Matiere
     {
         if ($this->professeurs->removeElement($professeur)) {
             $professeur->removeMatiere($this);
+        }
+
+        return $this;
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'id' => $this->id,
+            'titre' => $this->titre,
+            'reference' => $this->reference
+        ];
+    }
+
+    /**
+     * @return Collection<int, Cours>
+     */
+    public function getCours(): Collection
+    {
+        return $this->cours;
+    }
+
+    public function addCours(Cours $cour): self
+    {
+        if (!$this->cours->contains($cour)) {
+            $this->cours[] = $cour;
+            $cour->setMatiere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCours(Cours $cour): self
+    {
+        if ($this->cours->removeElement($cour)) {
+            // set the owning side to null (unless already changed)
+            if ($cour->getMatiere() === $this) {
+                $cour->setMatiere(null);
+            }
         }
 
         return $this;

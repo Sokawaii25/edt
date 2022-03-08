@@ -11,7 +11,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: ProfesseurRepository::class)]
 #[UniqueEntity('email')]
-class Professeur
+class Professeur implements \JsonSerializable
 {
     //ATTRIBUTS
     #[ORM\Id]
@@ -35,11 +35,15 @@ class Professeur
     #[ORM\ManyToMany(targetEntity: Matiere::class, inversedBy: 'professeurs')]
     private $matieres;
 
+    #[ORM\OneToMany(mappedBy: 'professeur', targetEntity: Cours::class, orphanRemoval: true)]
+    private $cours;
+
     //CONSTRUCTEUR
     public function __construct()
     {
         $this->avis = new ArrayCollection();
         $this->matieres = new ArrayCollection();
+        $this->cours = new ArrayCollection();
     }
 
     public function __toString()
@@ -137,6 +141,52 @@ class Professeur
     public function removeMatiere(Matiere $matiere): self
     {
         $this->matieres->removeElement($matiere);
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'email' => $this->email,
+            'matieres' => $this->matieres->toArray()
+        ];
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * @return Collection<int, Cours>
+     */
+    public function getCours(): Collection
+    {
+        return $this->cours;
+    }
+
+    public function addCours(Cours $cour): self
+    {
+        if (!$this->cours->contains($cour)) {
+            $this->cours[] = $cour;
+            $cour->setProfesseur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCours(Cours $cour): self
+    {
+        if ($this->cours->removeElement($cour)) {
+            // set the owning side to null (unless already changed)
+            if ($cour->getProfesseur() === $this) {
+                $cour->setProfesseur(null);
+            }
+        }
 
         return $this;
     }
