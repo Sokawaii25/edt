@@ -79,9 +79,18 @@ class CoursRepository extends ServiceEntityRepository
             FROM App\Entity\Cours AS c
             INNER JOIN c.salle AS s
             WHERE ((c.dateHeureDebut BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\')
-            OR (c.dateHeureFin BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\'))
+            OR (c.dateHeureFin >= \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureFin < \'' . $fin->format('Y-m-d H:i') . '\'))
             AND s.numero = '. $numSalle .'
         ');
+
+        /*
+
+        WHERE ((c.dateHeureDebut BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\')
+        
+        WHERE c.dateHeureDebut >= \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureDebut < \'' . $fin->format('Y-m-d H:i') . '\'' 
+
+        */
+
         $result = $query->getOneOrNullResult();
 
         return $result;

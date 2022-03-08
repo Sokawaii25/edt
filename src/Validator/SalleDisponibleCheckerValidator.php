@@ -33,14 +33,9 @@ class SalleDisponibleCheckerValidator extends ConstraintValidator
         
         $count = $repo->getCoursCountBySalleAndTime($value->getSalle()->getNumero(), $value->getDateHeureDebut(), $value->getDateHeureFin());
 
-        $array = ['result'];
-
-        dump($count);
-        dump($count[1]);
-
-        if($count[1] == 0) {
+        if($count[1] != 0) {
             $this->context->buildViolation($constraint->message)
-                //->setParameter('{{ numSalle }}', $value->getSalle()->getNumero())
+                ->setParameter('{{ numSalle }}', $value->getSalle()->getNumero())
                 ->addViolation();
         }
     }
