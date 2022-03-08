@@ -34,4 +34,14 @@ class CoursController extends AbstractController
         $cours = $repository->findByDate($date);
         return $this->json($cours, JsonResponse::HTTP_OK);
     }
+
+    #[Route('/{id}/avis', name: 'avis', methods: ['GET'])]
+    public function avis(Cours $cours = null): JsonResponse
+    {
+        return is_null($cours) 
+            ? $this->json([
+                'message' => 'Ce cours est introuvable',
+            ], JsonResponse::HTTP_NOT_FOUND)
+            : $this->json($cours->getAvis()->toArray(), JsonResponse::HTTP_OK);
+    }
 }

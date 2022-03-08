@@ -28,7 +28,8 @@ class CoursCrudController extends AbstractCrudController
                 ->renderAsNativeWidget(),
             AssociationField::new('salle'),
             AssociationField::new('matiere'),
-            AssociationField::new('professeur')
+            AssociationField::new('professeur'),
+            AssociationField::new('avis')
         ];
     }
 }

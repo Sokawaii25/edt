@@ -7,6 +7,49 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 <body>
+    <!-- Modale des avis par cours cliqué -->
+    <!-- Modal -->
+    <div class="modal fade" id="modaleAvis" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="note">Note</label>
+                            <input type="number" class="form-control" id="note" name="note" min="0" max="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="commentaire">Commentaire</label>
+                            <textarea class="form-control" id="commentaire" name="commentaire" rows="3" required></textarea>
+                        </div>
+                        <input type="hidden" name="id_cours" :value="coursSelectionne.id">
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                    </form>
+                    <div class="card" v-for="unAvis in avis">
+                        <div class="card-body">
+                            <h5 class="card-title">Note : {{ unAvis.note }}/5</h5>
+                            <p class="card-text">
+                                {{ unAvis.commentaire }} <br>
+                                De : <a :href="'mailto:' + unAvis.emailEtudiant">{{ unAvis.emailEtudiant }}</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/admin" class="btn btn-danger position-fixed float-end m-2">Administration</a>
     <div id="app" class="container">
         <div class="row justify-content-center align-items-center">
             <div class="col-2 d-flex" style="justify-content: right;">
@@ -25,7 +68,7 @@
                 <div class="alert alert-info text-center" role="alert" v-if="cours.length == 0">
                     <h3>Aucun cours ce jour-ci</h3>
                 </div>
-                <div class="card md-flex mt-2" v-for="unCours in cours" :style="{'background-color': this.couleursMatieres[unCours.matiere.id]}">
+                <div class="card md-flex mt-2" v-for="unCours in cours" :style="{'background-color': this.couleursMatieres[unCours.matiere.id]}" data-toggle="modal" data-target="#modaleAvis">
                     <div class="card-body">
                         <h5 class="card-title">{{ unCours.dateHeureDebut.heure + ' - ' + unCours.dateHeureFin.heure }}</h5>
                         <div class="row card-text justify-content-between">
@@ -48,6 +91,8 @@
     </div>
     <script type='application/javascript' src='https://unpkg.com/vue@3'></script>
     <script type='application/javascript' src='https://unpkg.com/axios'></script>
+    <script type='application/javascript' src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script type='application/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script type="application/javascript">
         const app = Vue.createApp({
             data() {
@@ -55,6 +100,8 @@
                     apiBase: 'http://127.0.0.1:8000/api',
                     currentDate: new Date(),
                     cours: [],
+                    coursSelectionne: null,
+                    avis: [],
                     couleursMatieres: [],
                     joursSemaine: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
                 }
@@ -71,6 +118,15 @@
                             this.cours = response.data;
                             this.createCouleursMatieres();
                             this.cours.sort(this.compareCours);
+                        })
+                        .catch(error => {
+                            console.log(error)
+                        });
+                },
+                getAvisFromCours(cours) {
+                    axios.get(this.apiBase + '/cours/' + cours.id + '/avis')
+                        .then(response => {
+                            this.avis = response.data;
                         })
                         .catch(error => {
                             console.log(error)

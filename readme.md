@@ -1,7 +1,6 @@
 # Rendu
 dumpBD.sql
-api
-front
+edt
 
 # Schema relationnel UML
 Avis(note, commentaire, emailEtuduiant) 0..* <-> 1 Prof(nom, prenom, email) 1..* <-> 0..* Matiere(titre, reference) 1 <-> 0..* Cours(dateHeureDebut, dateHeureFin, type) 0..* <-> 1 Salle(numero)
@@ -13,12 +12,15 @@ Déployer la base de données Postgres à partir du fichier fourni et adapter le
 
 # Fonctionnalités
 
+## Authentification
+- Authentification via email et mot de passe avec la méthode Form Login de Symfony
 ## Admin
 - CRUD Professeur
 - CRUD Matiere
 - CRUD Avis
 - CRUD Cours
 - CRUD Salle
+- CRUD User
 
 ## API
 ### Endpoints
@@ -43,17 +45,29 @@ Déployer la base de données Postgres à partir du fichier fourni et adapter le
 | `GET`    | /api/cours/:id            | Retourne un cours en fonction de   |
                                        | son id                             |
 | `GET`    | /api/cours/date/:date     | Retourne les cours d'un jour donné | date: yyyy-mm-jj
+| `GET`    | /api/cours/:id/avis       | Retourne les avis d'un cours donné |
 
 **Salles**
 | `GET`    | /api/salles               | Retourne la liste des salles       |
 
 ## Validation
 Professeur :
-- Nom : string
-- Prenom : string
-- Email : email
+- email : email valide et unique
+
+Avis :
+- note : assert valeur entre 0 et 5
+- emailEtudiant : email valide
+- couple emailEtudiant/professeur unique
+
+Cours :
+- dateHeureDebut : assert DateTime non vide, supérieure à 8h00 et à l'heure actuelle, inférieure à la dateHeureFin
+- dateHeureFin : assert DateTime non vide, supérieure à la dateHeureDebut, comprise dans la même journée et inférrieure à 19h00
+
+Salle :
+- numero : supérieur à 0 et unique
 
 - Pas de cours en même temps dans la même salle
 - Pas de cours en même temps avec le même prof
 
 # Fonctionnalités qui n'ont pas abouti
+- Interface avec toutes les heures de la journée et les cours placés en fonction de leur horaire

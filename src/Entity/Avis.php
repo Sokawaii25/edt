@@ -30,8 +30,19 @@ class Avis implements \JsonSerializable
     private $emailEtudiant;
 
     #[ORM\ManyToOne(targetEntity: Professeur::class, inversedBy: 'avis')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotNull(groups: ['avisProfesseur'])]
     private $professeur;
+
+    #[ORM\ManyToOne(targetEntity: Cours::class, inversedBy: 'avis')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotNull(groups: ['avisCours'])]
+    private $cours;
+
+    public function __toString()
+    {
+        return sprintf('%s/5 : %s (de %s à %s)', $this->note, $this->commentaire, $this->emailEtudiant, $this->professeur ?? $this->cours);
+    }
 
     public function getId(): ?int
     {
@@ -101,6 +112,18 @@ class Avis implements \JsonSerializable
         $this->note = $data['note'] ?? $this->note;
         $this->commentaire = $data['commentaire'] ?? $this->commentaire;
         $this->emailEtudiant = $data['emailEtudiant'] ?? $this->emailEtudiant;
+
+        return $this;
+    }
+
+    public function getCours(): ?Cours
+    {
+        return $this->cours;
+    }
+
+    public function setCours(?Cours $cours): self
+    {
+        $this->cours = $cours;
 
         return $this;
     }

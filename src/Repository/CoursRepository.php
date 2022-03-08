@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cours;
+use App\Entity\Salle;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -65,6 +66,27 @@ class CoursRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * Returns the count of Cours objects with a Salle with $numSalle as numero within the $debut and $fin timeframe
+     * @return int Returns the count of Cours objects
+     */
+    public function getCoursCountBySalleAndTime($numSalle, $debut, $fin)
+    {   
+        $entityManager = $this->getEntityManager();
+        
+        $query = $entityManager->createQuery('
+            SELECT COUNT(c)
+            FROM App\Entity\Cours AS c
+            INNER JOIN c.salle AS s
+            WHERE ((c.dateHeureDebut BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\')
+            OR (c.dateHeureFin BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\'))
+            AND s.numero = '. $numSalle .'
+        ');
+        $result = $query->getOneOrNullResult();
+
+        return $result;
+    }
+
     /*
     public function findOneBySomeField($value): ?Cours
     {
@@ -76,4 +98,5 @@ class CoursRepository extends ServiceEntityRepository
         ;
     }
     */
+
 }

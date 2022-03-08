@@ -15,6 +15,7 @@ use App\Entity\Avis;
 use App\Entity\Matiere;
 use App\Entity\Cours;
 use App\Entity\Salle;
+use App\Entity\User;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -42,11 +43,16 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         return [
+            MenuItem::section('Gestion des ressources'),
             MenuItem::linkToCrud('Professeur', 'fas fa-chalkboard-teacher', Professeur::class),
             MenuItem::linkToCrud('Matiere', 'fas fa-book-open', Matiere::class),
             MenuItem::linkToCrud('Avis', 'fas fa-star', Avis::class),
             MenuItem::linkToCrud('Cours', 'fas fa-bookmark', Cours::class),
-            MenuItem::linkToCrud('Salle', 'fas fa-map-marker-alt', Salle::class)
+            MenuItem::linkToCrud('Salle', 'fas fa-map-marker-alt', Salle::class),
+            MenuItem::linkToCrud('User', 'fas fa-user', User::class),
+            MenuItem::section('Navigation'),
+            MenuItem::linkToRoute('Retour à l\'accueil', 'fas fa-home', 'app_default'),
+            MenuItem::linkToLogout('Déconnexion', 'fas fa-sign-out-alt'),
         ];
     }
 }

@@ -3,10 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\CoursRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use App\Validator as testAssert;
 #[ORM\Entity(repositoryClass: CoursRepository::class)]
+#[testAssert\SalleDisponibleChecker()]
 class Cours implements \JsonSerializable
 {
     #[ORM\Id]
@@ -52,9 +55,17 @@ class Cours implements \JsonSerializable
     #[ORM\JoinColumn(nullable: false)]
     private $professeur;
 
+    #[ORM\OneToMany(mappedBy: 'cours', targetEntity: Avis::class)]
+    private $avis;
+
+    public function __construct()
+    {
+        $this->avis = new ArrayCollection();
+    }
+
     public function __toString()
     {
-        return sprintf('%s %s (%s - %s)', $this->type, $this->matiere, $this->dateHeureDebut, $this->dateHeureFin);
+        return sprintf('%s %s (%s - %s)', $this->type, $this->matiere, $this->dateHeureDebut->format('Y-m-d H:i:s'), $this->dateHeureFin->format('Y-m-d H:i:s'));
     }
 
     public function getId(): ?int
@@ -155,4 +166,35 @@ class Cours implements \JsonSerializable
             'salle' => $this->salle
         ];
     }
+
+    /**
+     * @return Collection<int, Avis>
+     */
+    public function getAvis(): Collection
+    {
+        return $this->avis;
+    }
+
+    public function addAvi(Avis $avi): self
+    {
+        if (!$this->avis->contains($avi)) {
+            $this->avis[] = $avi;
+            $avi->setCours($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvi(Avis $avi): self
+    {
+        if ($this->avis->removeElement($avi)) {
+            // set the owning side to null (unless already changed)
+            if ($avi->getCours() === $this) {
+                $avi->setCours(null);
+            }
+        }
+
+        return $this;
+    }
+
 }
