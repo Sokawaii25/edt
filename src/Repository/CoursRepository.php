@@ -78,18 +78,33 @@ class CoursRepository extends ServiceEntityRepository
             SELECT COUNT(c)
             FROM App\Entity\Cours AS c
             INNER JOIN c.salle AS s
-            WHERE ((c.dateHeureDebut BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\')
-            OR (c.dateHeureFin >= \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureFin < \'' . $fin->format('Y-m-d H:i') . '\'))
+            WHERE ((c.dateHeureDebut > \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureDebut < \'' . $fin->format('Y-m-d H:i') . '\')
+            OR (c.dateHeureFin > \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureFin < \'' . $fin->format('Y-m-d H:i') . '\'))
             AND s.numero = '. $numSalle .'
         ');
 
-        /*
+        $result = $query->getOneOrNullResult();
 
-        WHERE ((c.dateHeureDebut BETWEEN \'' . $debut->format('Y-m-d H:i') . '\' AND \'' . $fin->format('Y-m-d H:i') . '\')
+        return $result;
+    }
+
+
+    /**
+     * Returns the count of Cours objects with a Professeur $prof as id within the $debut and $fin timeframe
+     * @return int Returns the count of Cours objects
+     */
+    public function getCoursCountByProfesseurAndTime($prof_id, $debut, $fin)
+    {   
+        $entityManager = $this->getEntityManager();
         
-        WHERE c.dateHeureDebut >= \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureDebut < \'' . $fin->format('Y-m-d H:i') . '\'' 
-
-        */
+        $query = $entityManager->createQuery('
+            SELECT COUNT(c)
+            FROM App\Entity\Cours AS c
+            INNER JOIN c.professeur AS p
+            WHERE ((c.dateHeureDebut > \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureDebut < \'' . $fin->format('Y-m-d H:i') . '\')
+            OR (c.dateHeureFin > \'' . $debut->format('Y-m-d H:i') . '\' AND c.dateHeureFin < \'' . $fin->format('Y-m-d H:i') . '\'))
+            AND p.id = '. $prof_id .'
+        ');
 
         $result = $query->getOneOrNullResult();
 

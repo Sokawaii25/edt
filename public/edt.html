@@ -5,89 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Emploi du temps</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js" integrity="sha512-yFjZbTYRCJodnuyGlsKamNE/LlEaEAxSUDe5+u61mV8zzqJVFOH7TnULE2/PP/l5vKWpUNnF4VGVkXh3MjgLsg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
-    <!-- Modale des avis par cours cliqué -->
-    <div class="modal fade" id="modaleAvis" tabindex="-1" role="dialog" aria-labelledby="modaleAvisTitle" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modaleAvisTitle">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <a href="/admin" class="btn btn-danger position-fixed float-end m-2">Administration</a>
+    <div id="app">
+        <!-- Modale des avis par cours cliqué -->
+        <div v-if="coursSelectionne" class="modal fade" id="modaleAvis" tabindex="-1" role="dialog" aria-labelledby="modaleAvisTitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <!-- En-tête de la modale (menu d'onglets) -->
+                    <div class="modal-header">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                              <a class="nav-link active" data-toggle='tab' href="#noteCours" @click="ongletSelectionne = COURS; getAvis(ongletSelectionne)">Noter le cours</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle='tab' href="#noteProfesseur" @click="ongletSelectionne = PROFESSEUR; getAvis(ongletSelectionne)">Noter le professeur</a>
+                            </li>
+                        </ul>
+                        <button type="button" class="far fa-window-close" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <!-- Corps de la modale -->
+                    <div class="modal-body">
+                        <!-- Titre (nom du cours/professeur sélectionné) -->
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="noteCours" role="tabpanel" aria-labelledby="nav-home-tab">
+                                <h3>Avis du cours {{ coursSelectionne.matiere.titre +' - '+ coursSelectionne.type }}</h3>
+                            </div>
+                            <div class="tab-pane fade" id="noteProfesseur" role="tabpanel" aria-labelledby="nav-profile-tab">
+                                <h3>Avis du professeur {{ professeurSelectionne.prenom +' '+ professeurSelectionne.nom }}</h3>
+                            </div>
+                        </div>
+
+                        <!-- Liste des erreurs liées aux avis -->
+                        <ul class="text-danger">
+                            <li v-for="erreur in erreursAvis">
+                                {{ erreur }}
+                            </li>
+                        </ul>
+
+                        <!-- Formulaire de nouvel avis -->
+                        <form class="mn-5" v-on:submit.prevent=" ongletSelectionne === COURS ? postAvisCours() : postAvisProfesseur()">
+                            <div class="form-group">
+                                <label for="note">Note :</label>
+                                <select name="note" class="form-control" v-model="nouvelAvis.note">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="commentaire">Commentaire :</label>
+                                <textarea class="form-control" id="commentaire" name="commentaire" rows="3" v-model="nouvelAvis.commentaire" required></textarea>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="emailEtudiant">Email étudiant</label>
+                                <input type="email" class="form-control" id="emailEtudiant" name="emailEtudiant" v-model="nouvelAvis.emailEtudiant" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Envoyer</button>
+                        </form>
+
+                        <!-- Liste des avis -->
+                        <div class="card mb-2" v-for="unAvis in avis">
+                            <div class="card-body">
+                                <h5 class="card-title w-100 d-flex justify-content-between">
+                                    <span>
+                                        <i class="fa-solid fa-star" style="color: yellow;" v-for="n in unAvis.note"></i>
+                                        <i class="fa-regular fa-star" v-for="s in 5-unAvis.note"></i>
+                                    </span>
+                                    <span @click="deleteAvis(unAvis)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </span>
+                                </h5>
+                                <p class="card-text">
+                                    {{ unAvis.commentaire }} <br>
+                                    De : <a :href="'mailto:' + unAvis.emailEtudiant">{{ unAvis.emailEtudiant }}</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="avis = []">Fermer</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="note">Note</label>
-                            <input type="number" class="form-control" id="note" name="note" min="0" max="20" required>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Header de la page -->
+            <header>
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-2 d-flex" style="justify-content: right;">
+                        <button class="btn btn-info" @click="changeDate(-1)">Jour précédent</button>
+                    </div>
+                    <div class="col-6 text-center">
+                        <h1>Emploi du temps</h1>
+                        <h2> {{ currentDateString }} </h2>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-info" @click="changeDate(1)">Jour suivant</button>
+                    </div>
+                </div>
+            </header>
+            
+            <main>
+                <div class="row justify-content-center">
+                    <!-- Zone de l'emploi du temps -->
+                    <div class="col-6 pb-2" :class="{'bg-light': cours.length > 0}">
+
+                        <!-- En cas d'absence de cours -->
+                        <div class="alert alert-info text-center" role="alert" v-if="cours.length == 0">
+                            <h3>Aucun cours ce jour-ci</h3>
                         </div>
-                        <div class="form-group">
-                            <label for="commentaire">Commentaire</label>
-                            <textarea class="form-control" id="commentaire" name="commentaire" rows="3" required></textarea>
-                        </div>
-                        <input type="hidden" name="id_cours" :value="coursSelectionne.id">
-                        <button type="submit" class="btn btn-primary">Envoyer</button>
-                    </form>
-                    <div class="card" v-for="unAvis in avis">
-                        <div class="card-body">
-                            <h5 class="card-title">Note : {{ unAvis.note }}/5</h5>
-                            <p class="card-text">
-                                {{ unAvis.commentaire }} <br>
-                                De : <a :href="'mailto:' + unAvis.emailEtudiant">{{ unAvis.emailEtudiant }}</a>
-                            </p>
+
+                        <!-- liste des erreurs liées aux cours -->
+                        <ul class="text-danger">
+                            <li v-for="erreur in erreursCours">
+                                {{ erreur }}
+                            </li>
+                        </ul>
+
+                        <!-- Liste des cours -->
+                        <div class="card md-flex mt-2" v-for="unCours in cours" :style="{'background-color': this.couleursMatieres[unCours.matiere.id]}" data-toggle="modal" data-target="#modaleAvis" @click="setCoursSelectionne(unCours, ongletSelectionne)">
+                            <div class="card-body" :class="{'border border-3 border-danger': this.isNowWithin(unCours.dateHeureDebut, unCours.dateHeureFin)}">
+                                <!-- Titre de la carte -->
+                                <h5 class="card-title">{{ unCours.dateHeureDebut.heure + ' - ' + unCours.dateHeureFin.heure }}</h5>
+                                <div class="row card-text justify-content-between">
+                                    <div class="col-5">
+                                        <h6 class="card-subtitle mb-2 text-muted">{{ unCours.matiere.titre + ' - ' + unCours.type }}</h6>
+                                    </div>
+                                </div>
+
+                                <!-- Contenu de la carte -->
+                                <div class="row">
+                                    <div class="col">
+                                        <h6 class="card-subtitle text-muted">M.{{ unCours.professeur.nom }}</h6>
+                                    </div>
+                                    <div class="col-5 d-flex justify-content-right">
+                                        <h6 class="card-subtitle text-muted">Salle {{ unCours.salle.numero }}</h6>
+                                    </div>
+                                </div>  
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
+            </main>
         </div>
     </div>
 
-    <a href="/admin" class="btn btn-danger position-fixed float-end m-2">Administration</a>
-    <div id="app" class="container">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-2 d-flex" style="justify-content: right;">
-                <button class="btn btn-info" @click="changeDate(-1)">Précédent</button>
-            </div>
-            <div class="col-6 text-center">
-                <h1>Emploi du temps</h1>
-                <h2> {{ currentDateString }} </h2>
-            </div>
-            <div class="col-2">
-                <button class="btn btn-info" @click="changeDate(1)">Suivant</button>
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-6 pb-2" :class="{'bg-light': cours.length > 0}">
-                <div class="alert alert-info text-center" role="alert" v-if="cours.length == 0">
-                    <h3>Aucun cours ce jour-ci</h3>
-                </div>
-                <div class="card md-flex mt-2" v-for="unCours in cours" :style="{'background-color': this.couleursMatieres[unCours.matiere.id]}" data-toggle="modal" data-target="#modaleAvis">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ unCours.dateHeureDebut.heure + ' - ' + unCours.dateHeureFin.heure }}</h5>
-                        <div class="row card-text justify-content-between">
-                            <div class="col-5">
-                                <h6 class="card-subtitle mb-2 text-muted">{{ unCours.matiere.titre + ' - ' + unCours.type }}</h6>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <h6 class="card-subtitle text-muted">M.{{ unCours.professeur.nom }}</h6>
-                            </div>
-                            <div class="col-5 d-flex justify-content-right">
-                                <h6 class="card-subtitle text-muted">Salle {{ unCours.salle.numero }}</h6>
-                            </div>
-                        </div>  
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <script type='application/javascript' src='https://unpkg.com/vue@3'></script>
     <script type='application/javascript' src='https://unpkg.com/axios'></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -97,18 +168,29 @@
         const app = Vue.createApp({
             data() {
                 return {
+                    //CONSTANTES
+                    COURS: 'cours',
+                    PROFESSEUR: 'professeurs',
+                    //VARIABLES
                     apiBase: 'http://127.0.0.1:8000/api',
                     currentDate: new Date(),
                     cours: [],
                     coursSelectionne: null,
                     avis: [],
+                    nouvelAvis: null,
+                    erreursCours: [],
+                    erreursAvis: [],
                     couleursMatieres: [],
+                    ongletSelectionne: 'cours',
                     joursSemaine: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
                 }
             },
             computed: {
                 currentDateString: function() {
                     return this.joursSemaine[this.currentDate.getUTCDay()] +' '+(this.currentDate.getDate() < 10 ? '0' : '') + this.currentDate.getDate() + '/' + (this.currentDate.getMonth() < 9 ? '0' : '') + (this.currentDate.getMonth()+1) + '/' + this.currentDate.getFullYear();
+                },
+                professeurSelectionne() {
+                    return this.coursSelectionne.professeur;
                 }
             },
             methods: {
@@ -118,23 +200,76 @@
                             this.cours = response.data;
                             this.createCouleursMatieres();
                             this.cours.sort(this.compareCours);
+                            this.erreursCours = [];
                         })
                         .catch(error => {
-                            console.log(error)
+                            this.erreursCours = Object.values(error.response.data);
                         });
                 },
-                getAvisFromCours(cours) {
-                    axios.get(this.apiBase + '/cours/' + cours.id + '/avis')
+                getAvis(type) {
+                    this.avis = [];
+                    this.nouvelAvis = this.createAvis();
+                    this.erreursAvis = [];
+                    let entite = type === this.COURS ? this.coursSelectionne : this.coursSelectionne.professeur;
+                    axios.get(this.apiBase + '/'+ type +'/' + entite.id + '/avis')
                         .then(response => {
                             this.avis = response.data;
+                            this.erreursAvis = [];
                         })
                         .catch(error => {
-                            console.log(error)
+                            this.erreursAvis = Object.values(error.response.data);
                         });
+                },
+                postAvisCours() {
+                    axios.post(this.apiBase + '/cours/' + this.coursSelectionne.id + '/avis', this.nouvelAvis)
+                        .then(response => {
+                            this.getAvis(this.COURS);
+                            this.nouvelAvis = this.createAvis();
+                            this.erreursAvis = [];
+                        })
+                        .catch(error => {
+                            this.erreursAvis = Object.values(error.response.data);
+                        });
+                },
+                postAvisProfesseur() {
+                    axios.post(this.apiBase + '/professeurs/' + this.professeurSelectionne.id + '/avis', this.nouvelAvis)
+                        .then(response => {
+                            this.getAvis(this.PROFESSEUR);
+                            this.nouvelAvis = this.createAvis();
+                            this.erreursAvis = [];
+                        })
+                        .catch(error => {
+                            this.erreursAvis = Object.values(error.response.data);
+                        });
+                },
+                createAvis() {
+                    return {
+                        note: 0,
+                        commentaire: '',
+                        emailEtudiant: ''
+                    };
+                },
+                deleteAvis(avis) {
+                    if (!confirm('Voulez-vous vraiment supprimer cet avis ?'))
+                        return;
+                    
+                    axios.delete(this.apiBase + '/avis/' + avis.id)
+                        .then(response => {
+                            alert('L\'avis a bien été supprimé');
+                            this.getAvis(this.ongletSelectionne);
+                            this.erreursAvis = [];
+                        })
+                        .catch(error => {
+                            this.erreursAvis = Object.values(error.response.data);
+                        });
+                },
+                setCoursSelectionne(cours, type) {
+                    this.coursSelectionne = cours;
+                    this.getAvis(type);
                 },
                 createCouleursMatieres() {
                     this.cours.forEach( unCours => {
-                        if(this.couleursMatieres.indexOf(unCours.matiere.id) == -1){
+                        if(this.couleursMatieres[unCours.matiere.id] === undefined) {
                             this.couleursMatieres[unCours.matiere.id] = "rgb(" + (Math.floor((256-190)*Math.random()) + 200) + "," +
                             (Math.floor((256-190)*Math.random()) + 200) + "," +
                             (Math.floor((256-190)*Math.random()) + 200) + ")";
@@ -162,6 +297,21 @@
                     }
                     
                     return 0;
+                },
+                isNowWithin(dateHeureDebut, dateHeureFin){
+                    let now = new Date();
+                    let nowDate = now.getFullYear()*10000+(now.getMonth()+1)*100+now.getDate();
+                    let jourCours = dateHeureDebut.date.split('/');
+                    jourCours = parseInt(jourCours[2])*10000+parseInt(jourCours[1])*100+parseInt(jourCours[0]);
+                    if(!(nowDate == jourCours)) {
+                        return false;
+                    }
+                    now = now.getHours() * 100 + now.getMinutes();
+                    let heureDebut = dateHeureDebut.heure.split(':');
+                    heureDebut = parseInt(heureDebut[0]) * 100 + parseInt(heureDebut[1]);
+                    let heureFin = dateHeureFin.heure.split(':');
+                    heureFin = parseInt(heureFin[0]) * 100 + parseInt(heureFin[1]);
+                    return (heureDebut <= now && now <= heureFin);
                 }
             },
             mounted() {

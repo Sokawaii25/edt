@@ -7,9 +7,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator as testAssert;
+use App\Validator as Validators;
 #[ORM\Entity(repositoryClass: CoursRepository::class)]
-#[testAssert\SalleDisponibleChecker()]
+#[Validators\SalleDisponibleChecker()]
+#[Validators\ProfesseurDisponibleChecker()]
 class Cours implements \JsonSerializable
 {
     #[ORM\Id]
@@ -19,24 +20,24 @@ class Cours implements \JsonSerializable
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank]
-    #[Assert\GreaterThan('now')]
+    #[Assert\GreaterThan('now', message: 'Impossible de créer un cours dans le passé!')]
     #[Assert\Expression(
         "value.format('Hi') >= 800",
-        message: 'L`\'heure de début ne peut pas être inférieure à 8h!'
+        message: 'L`\'heure de début ne peut pas être antérieure à 8h!'
     )]// min 8h pour l'heure de début
-    #[Assert\LessThan(propertyPath: 'dateHeureFin')] // Date de début < date de fin
+    #[Assert\LessThan(propertyPath: 'dateHeureFin', message: 'La date de début doit être antérieure à la date de fin !')] // Date de début < date de fin
     private $dateHeureDebut;
 
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotBlank]
-    #[Assert\GreaterThan(propertyPath: 'dateHeureDebut')] // Date de fin > date de début
+    #[Assert\GreaterThan(propertyPath: 'dateHeureDebut', message: 'La date de fin doit être ultérieure à la date de début !')] // Date de fin > date de début
     #[Assert\Expression(
         "this.getDateHeureDebut().format('dMy') === value.format('dMy')",
         message: 'La date de début et de fin doivent être dans la même journée!'
     )]// check que la date de fin soit dans la même journée que la date de début
     #[Assert\Expression(
         "value.format('Hi') <= 1900",
-        message: 'L\'heure de fin ne peut pas excéder 19h!'
+        message: 'L\'heure de fin ne peut pas être ultérieure à 19h!'
     )]// max 19h pour date de fin
     private $dateHeureFin;
 
@@ -159,6 +160,7 @@ class Cours implements \JsonSerializable
             ],
             'type' => $this->type,
             'professeur' => [
+                'id' => $this->professeur->getId(),
                 'nom' => $this->professeur->getNom(),
                 'prenom' => $this->professeur->getPrenom()
             ],

@@ -29,7 +29,6 @@ class CoursCrudController extends AbstractCrudController
             AssociationField::new('salle'),
             AssociationField::new('matiere'),
             AssociationField::new('professeur'),
-            AssociationField::new('avis')
         ];
     }
 }

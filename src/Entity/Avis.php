@@ -8,7 +8,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: AvisRepository::class)]
-#[UniqueEntity(fields: ['emailEtudiant', 'professeur'], message: "Cet étudiant a déjà donné un avis à ce professeur", errorPath: 'emailEtudiant')]
+#[UniqueEntity(fields: ['emailEtudiant', 'professeur'], message: "Cet étudiant a déjà donné un avis à ce professeur", errorPath: 'emailEtudiant', groups: ['avisProfesseur'])]
+#[UniqueEntity(fields: ['emailEtudiant', 'cours'], message: "Cet étudiant a déjà donné un avis à ce cours", errorPath: 'emailEtudiant', groups: ['avisCours'])]
 class Avis implements \JsonSerializable
 {
     use Updateable;

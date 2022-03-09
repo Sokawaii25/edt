@@ -7,9 +7,9 @@ use Symfony\Component\Validator\Constraint;
 use App\Entity\Cours;
 
 #[\Attribute]
-class SalleDisponibleChecker extends Constraint
+class ProfesseurDisponibleChecker extends Constraint
 {
-    public $message = 'La salle {{ numSalle }} n\'est pas disponible à cet horaire!';
+    public $message = '{{ prenomProf }} {{ nomProf }} est déjà assigné à un cours pour cet horaire!';
 
     public function getTargets()
     {

@@ -59,25 +59,24 @@ class ProfesseurController extends AbstractController
             return $this->json([
                 'message' => 'Ce professeur est introuvable',
             ], JsonResponse::HTTP_NOT_FOUND);
-        else {
-            $content = json_decode($request->getContent(), true);
-            $avis = (new Avis)
-                ->fromArray($content)
-                ->setProfesseur($professeur);
-            
-            $errors = $validator->validate($avis);
+        
+        $content = json_decode($request->getContent(), true);
+        $avis = (new Avis)
+            ->fromArray($content)
+            ->setProfesseur($professeur);
+        
+        $errors = $validator->validate($avis, null, ['Default', 'avisProfesseur']);
 
-            if ($errors->count() > 0) {
-                return $this->json($this->formatErrors($errors), JsonResponse::HTTP_BAD_REQUEST);
-            }
-
-            $em->persist($avis);
-            $em->flush();
-
-            return $this->json([
-                'message' => 'Avis créé',
-                'avis' => $avis
-            ], JsonResponse::HTTP_CREATED);
+        if ($errors->count() > 0) {
+            return $this->json($this->formatErrors($errors), JsonResponse::HTTP_BAD_REQUEST);
         }
+
+        $em->persist($avis);
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Avis créé',
+            'avis' => $avis
+        ], JsonResponse::HTTP_CREATED);
     }
 }

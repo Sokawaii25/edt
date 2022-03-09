@@ -19,10 +19,6 @@ class ProfesseurCrudController extends AbstractCrudController
             'nom',
             'prenom',
             'email',
-            AssociationField::new('matieres')
-                ->setFormTypeOptions([
-                    'by_reference' => false,
-                ]),
         ];
     }
 }

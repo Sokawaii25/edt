@@ -10,7 +10,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SalleRepository::class)]
-#[UniqueEntity('numero')]
+#[UniqueEntity('numero', message: 'Cette salle existe déjà!')]
 class Salle implements \JsonSerializable
 {
     #[ORM\Id]
@@ -19,7 +19,7 @@ class Salle implements \JsonSerializable
     private $id;
 
     #[ORM\Column(type: 'smallint')]
-    #[Assert\GreaterThan(0)]
+    #[Assert\GreaterThan(0, message: 'Le numéro doit être supérieur à 0!')]
     private $numero;
 
     #[ORM\OneToMany(mappedBy: 'salle', targetEntity: Cours::class)]
