@@ -20,9 +20,12 @@ services:
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
   symfony:
-    image: symfony-project
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: app
-    command: symfony serve
+
+    command: composer install && symfony serve
     volumes:
       - ./:/app
     ports:
