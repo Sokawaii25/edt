@@ -1365,16 +1365,16 @@
         },
         {
             "name": "easycorp/easyadmin-bundle",
-            "version": "v4.0.7",
+            "version": "v4.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyCorp/EasyAdminBundle.git",
-                "reference": "3bfe7b5fb17228df27f318c58315bf46aef53e04"
+                "reference": "a582d4590499eab9832cb684c5da61882c92aa73"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/3bfe7b5fb17228df27f318c58315bf46aef53e04",
-                "reference": "3bfe7b5fb17228df27f318c58315bf46aef53e04",
+                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/a582d4590499eab9832cb684c5da61882c92aa73",
+                "reference": "a582d4590499eab9832cb684c5da61882c92aa73",
                 "shasum": ""
             },
             "require": {
@@ -1441,7 +1441,7 @@
             ],
             "support": {
                 "issues": "https://github.com/EasyCorp/EasyAdminBundle/issues",
-                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v4.0.7"
+                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v4.0.9"
             },
             "funding": [
                 {
@@ -1449,7 +1449,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-27T17:31:10+00:00"
+            "time": "2022-03-09T19:03:17+00:00"
         },
         {
             "name": "friendsofphp/proxy-manager-lts",

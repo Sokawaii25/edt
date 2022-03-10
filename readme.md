@@ -87,3 +87,10 @@ Salle :
 
 # Fonctionnalités qui n'ont pas abouti
 - Interface avec toutes les heures de la journée et les cours placés en fonction de leur horaire
+
+
+étapes d'in,stallation :
+- avoir docker
+- faire docker compose up -d dans edt pour lancer la base de données
+- y restorer le dump (et check l'accs à la base au passage)
+- lancer le serveur
