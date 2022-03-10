@@ -24,10 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
-
-    command: composer install && symfony serve
-    volumes:
-      - ./:/app
+    command: symfony serve
     ports:
       - "8000:8000"
     restart: always

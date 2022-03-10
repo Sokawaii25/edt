@@ -9,6 +9,8 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY symfony-cli_5.4.2_x86_64.apk /tmp
 RUN apk add --allow-untrusted /tmp/symfony-cli_5.4.2_x86_64.apk
 
+COPY ./ /app
+
 WORKDIR /app
 
 EXPOSE 8000

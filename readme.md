@@ -94,3 +94,8 @@ Salle :
 - faire docker compose up -d dans edt pour lancer la base de données
 - y restorer le dump (et check l'accs à la base au passage)
 - lancer le serveur
+
+
+composer install
+easyadmin install bug
+restore base de données
