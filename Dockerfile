@@ -13,4 +13,6 @@ COPY ./ /app
 
 WORKDIR /app
 
+RUN composer install
+
 EXPOSE 8000
